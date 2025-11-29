@@ -3,6 +3,7 @@ import express from "express";
 import {
   createServiceRequest,
   listServiceRequests,
+  getServiceRequest,
   getServiceRequestsByUser,
   updateServiceStatus,
 } from "../controllers/serviceRequestController.js";
@@ -23,6 +24,9 @@ router.post(
 
 // List all service requests (admin) or user's own (citizen)
 router.get("/", authMiddleware, listServiceRequests);
+
+// Get single service request by ID (for tracker)
+router.get("/:id", authMiddleware, getServiceRequest);
 
 // Get all service requests by a specific user
 router.get("/user/:userId", authMiddleware, getServiceRequestsByUser);

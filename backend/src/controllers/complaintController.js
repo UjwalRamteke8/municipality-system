@@ -1,6 +1,6 @@
-// Complaint CRUD and status updates\nmodule.exports = {};
+// Complaint CRUD and status updates
 // backend/src/controllers/complaintController.js
-import Complaint from "../../models/Complaint.js";
+import Complaint from "../models/Complaint.js";
 import asyncHandler from "express-async-handler";
 
 /**

@@ -1,5 +1,4 @@
-// Main Express server (with Socket.io)
-// backend/server.js (or backend/src/server.js)
+// backend/server.js
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -8,58 +7,59 @@ import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import connectDB from "./config/db.js";
-import apiRoutes from "./src/routes/index.js";
-
-import errorHandler from "./src/middleware/errorHandler.js";
-import { initializeChat } from "./src/sockets/chatSocket.js";
-import { startSensorSimulator } from "./src/iot/sensorSimulator.js";
-
+// Load environment variables FIRST
 dotenv.config();
 
-// Setup __dirname for ES Modules
+import connectDB from "./config/db.js";
+import "./config/firebaseAdmin.js";
+import apiRoutes from "./src/index.js";
+import errorHandler from "./src/middleware/errorHandler.js";
+import { initializeChat } from "./src/socket/chatSocket.js";
+import { startSensorSimulator } from "./src/iot/sensorSimulator.js";
+
+console.log("ENV PATH:", process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Initialize app
 const app = express();
 
-// Middlewares
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://ai-chat-eosin-rho.vercel.app"],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve uploads folder (static)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// API Routes (all combined in index.js)
 app.use("/api", apiRoutes);
 
-// Error handler
 app.use(errorHandler);
 
-// Create HTTP + Socket.io server
 const server = http.createServer(app);
 
 const io = new Server(server, {
-  cors: { origin: "*" },
+  cors: { origin: "*", methods: ["GET", "POST"] },
 });
 
-// Initialize Chat Socket
 initializeChat(io);
 
-// Connect MongoDB
+// CONNECT MONGODB ATLAS
 connectDB();
 
-// Start IoT simulator
 startSensorSimulator(io, {
   intervalMs: 5000,
   sensorCount: 3,
 });
 
-// Server listen
 const PORT = process.env.PORT || 5000;
+
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log("📡 Socket.io & IoT simulator running...");
+  console.log(`🚀 Server running → http://localhost:${PORT}`);
+  console.log("💬 Socket.IO ready");
+  console.log("📡 IoT Sensor Simulator active");
 });

@@ -1,6 +1,6 @@
-// Public portal announcements\nmodule.exports = {};
+// Public portal announcements
 // backend/src/controllers/announcementController.js
-import Announcement from "../../models/Announcement.js";
+import Announcement from "../models/Announcement.js";
 import asyncHandler from "express-async-handler";
 
 /**

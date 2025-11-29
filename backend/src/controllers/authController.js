@@ -1,8 +1,8 @@
-// Authentication (signup, login, roles)\nmodule.exports = {};
+// Authentication (signup, login, roles)
 // backend/src/controllers/authController.js
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import User from "../../models/User.js"; // assumes Mongoose model
+import User from "../models/User.js";
 import asyncHandler from "express-async-handler";
 
 /**

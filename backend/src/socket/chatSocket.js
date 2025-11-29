@@ -5,7 +5,7 @@
  *  initializeChat(io);
  */
 
-import ChatMessage from "../../models/ChatMessage.js";
+import ChatMessage from "../models/ChatMessege.js";
 
 /**
  * Initialize chat socket handlers

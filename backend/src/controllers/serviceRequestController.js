@@ -1,6 +1,6 @@
-// Service request CRUD and payments\nmodule.exports = {};
+// Service request CRUD and payments
 // backend/src/controllers/serviceRequestController.js
-import ServiceRequest from "../../models/ServiceRequest.js";
+import ServiceRequest from "../models/ServiceRequest.js";
 import asyncHandler from "express-async-handler";
 
 /**
@@ -50,6 +50,20 @@ export const listServiceRequests = asyncHandler(async (req, res) => {
   ]);
 
   res.json({ page, totalPages: Math.ceil(total / limit), total, items });
+});
+
+/**
+ * @route GET /api/services/:id
+ * Get single service request by ID
+ */
+export const getServiceRequest = asyncHandler(async (req, res) => {
+  const item = await ServiceRequest.findById(req.params.id).populate(
+    "user",
+    "name email"
+  );
+  if (!item)
+    return res.status(404).json({ message: "Service request not found." });
+  res.json({ serviceRequest: item });
 });
 
 /**

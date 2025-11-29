@@ -1,22 +1,17 @@
-// MongoDB connection setup\nmodule.exports = {};
 // backend/config/db.js
 import mongoose from "mongoose";
 
 const connectDB = async () => {
   try {
-    mongoose.set("strictQuery", false);
+    if (!process.env.MONGO_URI) {
+      throw new Error("MONGO_URI is not defined in environment variables");
+    }
 
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-
-    console.log(`🟢 MongoDB Connected: ${conn.connection.host}`);
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("✅ MongoDB Connected Successfully");
   } catch (error) {
-    console.error("🔴 MongoDB connection error:", error.message);
-
-    // Retry connection after 5 sec
-    setTimeout(connectDB, 5000);
+    console.error("❌ MongoDB Connection Failed:", error.message);
+    process.exit(1);
   }
 };
 

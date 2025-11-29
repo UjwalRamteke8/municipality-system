@@ -1,9 +1,8 @@
-// Admin dashboard metrics\nmodule.exports = {};
+// Admin dashboard metrics
 // backend/src/controllers/analyticsController.js
 import Complaint from "../models/Complaint.js";
 import ServiceRequest from "../models/ServiceRequest.js";
 import asyncHandler from "express-async-handler";
-import mongoose from "mongoose";
 
 /**
  * @route GET /api/analytics/summary
