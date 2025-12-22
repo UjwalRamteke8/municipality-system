@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Municipality System Test Suite" verbose="2" parallel="false">
+    
+    <!-- Login Tests -->
+    <test name="Login Tests">
+        <classes>
+            <class name="com.municipality.tests.LoginTest">
+                <methods>
+                    <include name="testValidLogin"/>
+                    <include name="testInvalidPassword"/>
+                    <include name="testEmptyEmail"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+    
+    <!-- Complaint Tests -->
+    <test name="Complaint Tests">
+        <classes>
+            <class name="com.municipality.tests.ComplaintTest">
+                <methods>
+                    <include name="testFileComplaintWithValidDetails"/>
+                    <include name="testFileComplaintWithAttachment"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+</suite>

@@ -1,0 +1,58 @@
+# Maven
+target/
+*.class
+*.jar
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.classpath
+.project
+.settings/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test Results
+test-output/
+reports/
+logs/
+
+# Screenshots
+screenshots/
+*.png
+*.jpg
+
+# Build
+*.war
+*.ear
+
+# Dependencies
+dependency-reduced-pom.xml
+
+# Environment files
+.env
+.env.local
+
+# Node (if using npm for any tools)
+node_modules/
+npm-debug.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Gradle (if using Gradle)
+.gradle/
+build/
+
+# Others
+.history/
+*.log
+tempfile
