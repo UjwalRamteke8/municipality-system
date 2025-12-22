@@ -11,6 +11,8 @@ const authMiddleware = async (req, res, next) => {
     }
 
     const idToken = authHeader.split(" ")[1];
+
+    // Verify the token with Firebase Admin
     const decoded = await admin.auth().verifyIdToken(idToken);
 
     if (!decoded || !decoded.uid) {
@@ -19,25 +21,21 @@ const authMiddleware = async (req, res, next) => {
 
     req.firebaseUser = decoded;
 
-    // 1. Try finding by firebaseUid (Best method)
+    // Finding/Syncing User with MongoDB
     let user = await User.findOne({ firebaseUid: decoded.uid });
 
-    // 2. If not found, try finding by email (Legacy sync)
     if (!user && decoded.email) {
       user = await User.findOne({ email: decoded.email });
       if (user) {
-        // Link the existing account to Firebase
         user.firebaseUid = decoded.uid;
         await user.save();
       }
     }
 
-    // 3. Create new user if doesn't exist
     if (!user) {
       user = await User.create({
         firebaseUid: decoded.uid,
         email: decoded.email,
-        // Fallback if name is missing from Google/Firebase
         name: decoded.name || "New Citizen",
         role: "citizen",
       });
@@ -50,7 +48,16 @@ const authMiddleware = async (req, res, next) => {
 
     next();
   } catch (err) {
-    console.error("Auth Middleware Error:", err.message);
+    console.error("Auth Middleware Error:", err.code || err.message);
+
+    // SPECIFIC FIX: Check if the error is due to expiration
+    if (err.code === "auth/id-token-expired") {
+      return res.status(401).json({
+        code: "TOKEN_EXPIRED",
+        message: "Firebase ID token has expired. Please get a fresh token.",
+      });
+    }
+
     return res.status(401).json({ message: "Unauthorized: " + err.message });
   }
 };
