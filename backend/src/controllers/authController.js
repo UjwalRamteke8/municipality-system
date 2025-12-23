@@ -8,8 +8,12 @@ import asyncHandler from "express-async-handler";
 /**
  * Create JWT token
  */
-const createToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+const createToken = (userId, role = null, department = null) => {
+  const payload = { id: userId };
+  if (role) payload.role = role;
+  if (department) payload.department = department;
+
+  return jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   });
 };
@@ -58,7 +62,7 @@ export const register = asyncHandler(async (req, res) => {
 
 /**
  * @route POST /api/auth/login
- * @desc Login user
+ * @desc Login user (citizen)
  */
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -80,6 +84,51 @@ export const login = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+    },
+    token,
+  });
+});
+
+/**
+ * @route POST /api/auth/staff-login
+ * @desc Login staff/admin user with department
+ */
+export const departmentLogin = asyncHandler(async (req, res) => {
+  const { email, password, department } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password required." });
+  }
+
+  // 1. Find User
+  const user = await User.findOne({ email: email.toLowerCase() });
+  if (!user) {
+    return res.status(401).json({ message: "Official account not found." });
+  }
+
+  // 2. Strict Role Check (Security Layer)
+  if (user.role !== "admin" && user.role !== "staff") {
+    return res
+      .status(403)
+      .json({ message: "Access Restricted: Use Citizen Login Portal." });
+  }
+
+  // 3. Verify Password
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    return res.status(401).json({ message: "Invalid credentials." });
+  }
+
+  // 4. Generate Token with Role and Department
+  const token = createToken(user._id, user.role, department);
+
+  res.json({
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      department: department,
     },
     token,
   });
