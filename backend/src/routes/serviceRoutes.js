@@ -1,4 +1,3 @@
-// /api/services/* endpoints
 import express from "express";
 import {
   createServiceRequest,
@@ -14,7 +13,7 @@ import upload from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
-// Citizen/service request
+// 1. Create a Service Request
 router.post(
   "/",
   authMiddleware,
@@ -22,16 +21,17 @@ router.post(
   createServiceRequest
 );
 
-// List all service requests (admin) or user's own (citizen)
+// 2. List Service Requests
+// (Logic in controller should handle: Admin sees all, Citizen sees only theirs)
 router.get("/", authMiddleware, listServiceRequests);
 
-// Get single service request by ID (for tracker)
+// 3. Get single service request by ID
 router.get("/:id", authMiddleware, getServiceRequest);
 
-// Get all service requests by a specific user
+// 4. Get all requests by specific user
 router.get("/user/:userId", authMiddleware, getServiceRequestsByUser);
 
-// Update status (Admin/Staff)
+// 5. Update Service Status (Admin/Staff only)
 router.patch(
   "/:id/status",
   authMiddleware,

@@ -1,4 +1,3 @@
-// /api/auth/* endpoints
 import express from "express";
 import {
   register,
@@ -15,7 +14,9 @@ router.post("/register", register);
 
 // Login
 router.post("/login", login);
-router.post("/staff-login", departmentLogin);
+
+// Staff Login - FIXED: Renamed to match frontend call
+router.post("/verify-staff", departmentLogin);
 
 // Get logged in user profile
 router.get("/me", authMiddleware, getProfile);

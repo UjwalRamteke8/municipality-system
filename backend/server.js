@@ -30,6 +30,24 @@ app.use(
     credentials: true,
   })
 );
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  // You will add your Vercel domain here later, e.g., "https://pmc-system.vercel.app"
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(cors()); // Allows all origins for development

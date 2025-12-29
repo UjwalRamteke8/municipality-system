@@ -2,12 +2,8 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    // FIX 1: Add firebaseUid so the middleware can find users later
     firebaseUid: { type: String, unique: true, sparse: true },
-
-    // FIX 2: Ensure required is explicitly false
     name: { type: String, required: false, trim: true },
-
     email: { type: String, required: true, unique: true, lowercase: true },
     phone: { type: String },
     role: {
@@ -15,9 +11,13 @@ const userSchema = new mongoose.Schema(
       enum: ["citizen", "staff", "admin"],
       default: "citizen",
     },
+    // ADDED: Required for staff login to work
+    department: {
+      type: String,
+      required: false,
+      default: "general",
+    },
     address: { type: String },
-
-    // FIX 3: Ensure password is NOT required (for Google/Firebase logins)
     password: { type: String, required: false },
   },
   { timestamps: true }

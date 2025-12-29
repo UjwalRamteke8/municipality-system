@@ -4,19 +4,65 @@ import User from "../models/User.js";
 const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+
+    if (!authHeader) {
       return res
         .status(401)
-        .json({ message: "No authorization token provided." });
+        .json({ message: "No authorization header provided." });
+    }
+
+    if (!authHeader.startsWith("Bearer ")) {
+      return res
+        .status(401)
+        .json({ message: "Authorization header must start with 'Bearer '." });
     }
 
     const idToken = authHeader.split(" ")[1];
 
+    if (!idToken || idToken.trim() === "") {
+      return res
+        .status(401)
+        .json({ message: "No token provided in authorization header." });
+    }
+
     // Verify the token with Firebase Admin
-    const decoded = await admin.auth().verifyIdToken(idToken);
+    let decoded;
+    try {
+      decoded = await admin.auth().verifyIdToken(idToken);
+    } catch (tokenError) {
+      console.error("Token verification failed:", {
+        code: tokenError.code,
+        message: tokenError.message,
+        tokenLength: idToken.length,
+        tokenStart: idToken.substring(0, 20),
+      });
+
+      // Specific error handling
+      if (tokenError.code === "auth/id-token-expired") {
+        return res.status(401).json({
+          code: "TOKEN_EXPIRED",
+          message: "Firebase ID token has expired. Please refresh your token.",
+        });
+      }
+
+      if (
+        tokenError.code === "auth/argument-error" ||
+        tokenError.code === "auth/invalid-argument"
+      ) {
+        return res.status(401).json({
+          code: "INVALID_TOKEN",
+          message:
+            "Invalid authentication token format. Token must be a valid JWT.",
+        });
+      }
+
+      throw tokenError;
+    }
 
     if (!decoded || !decoded.uid) {
-      return res.status(401).json({ message: "Invalid Firebase token." });
+      return res
+        .status(401)
+        .json({ message: "Invalid Firebase token structure." });
     }
 
     req.firebaseUser = decoded;
@@ -48,17 +94,16 @@ const authMiddleware = async (req, res, next) => {
 
     next();
   } catch (err) {
-    console.error("Auth Middleware Error:", err.code || err.message);
+    console.error("Auth Middleware Error:", {
+      code: err.code || "UNKNOWN",
+      message: err.message,
+      stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+    });
 
-    // SPECIFIC FIX: Check if the error is due to expiration
-    if (err.code === "auth/id-token-expired") {
-      return res.status(401).json({
-        code: "TOKEN_EXPIRED",
-        message: "Firebase ID token has expired. Please get a fresh token.",
-      });
-    }
-
-    return res.status(401).json({ message: "Unauthorized: " + err.message });
+    return res.status(401).json({
+      message: "Unauthorized: Invalid or expired token",
+      code: err.code || "AUTH_ERROR",
+    });
   }
 };
 

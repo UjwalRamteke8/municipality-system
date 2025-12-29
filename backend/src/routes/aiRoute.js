@@ -6,7 +6,6 @@ dotenv.config();
 
 const router = express.Router();
 
-// Initialize Groq client
 const client = new OpenAI({
   apiKey: process.env.GROQ_API_KEY,
   baseURL: "https://api.groq.com/openai/v1",
@@ -17,6 +16,7 @@ router.post("/chat", async (req, res) => {
     const { prompt } = req.body;
     if (!prompt) return res.status(400).json({ error: "Prompt is required" });
 
+    // Use a try/catch specifically for the API call to log details
     const completion = await client.chat.completions.create({
       messages: [
         {
@@ -26,15 +26,17 @@ router.post("/chat", async (req, res) => {
         },
         { role: "user", content: prompt },
       ],
-      // UPDATED MODEL NAME BELOW
       model: "llama-3.3-70b-versatile",
     });
 
     const reply = completion.choices[0].message.content;
     res.json({ reply });
   } catch (error) {
-    console.error("AI Backend Error:", error);
-    res.status(500).json({ error: "Failed to generate AI response" });
+    console.error("AI Backend Error:", error.message);
+    // Return the actual error message to the frontend console for debugging
+    res
+      .status(500)
+      .json({ error: "Failed to generate response", details: error.message });
   }
 });
 

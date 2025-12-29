@@ -4,7 +4,7 @@ import authRoutes from "./routes/authRoutes.js";
 import complaintRoutes from "./routes/complaintRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import announcementRoutes from "./routes/announcementRoutes.js";
-import chatRouter from "./routes/aiRoute.js"; // correct import
+import chatRouter from "./routes/aiRoute.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 import iotRoutes from "./routes/iotRoutes.js";
 import photoRoutes from "./routes/photoRoutes.js";
@@ -12,8 +12,8 @@ import photoRoutes from "./routes/photoRoutes.js";
 const router = express.Router();
 
 router.use("/auth", authRoutes);
-router.use("/complaints", complaintRoutes);
-router.use("/services", serviceRoutes);
+router.use("/complaints", complaintRoutes); // Fixed: Removed redundant /api prefix
+router.use("/services", serviceRoutes); // Fixed: Removed redundant /api prefix
 router.use("/announcements", announcementRoutes);
 router.use("/ai", chatRouter);
 router.use("/analytics", analyticsRoutes);
