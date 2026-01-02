@@ -87,7 +87,11 @@ export const updateServiceStatus = asyncHandler(async (req, res) => {
   if (!item)
     return res.status(404).json({ message: "Service request not found." });
 
-  item.status = status || item.status;
+  // Force lowercase to ensure consistency (matches enum if you have one)
+  if (status) {
+    item.status = status.toLowerCase();
+  }
+
   if (remark) item.remark = remark;
   item.updatedAt = Date.now();
 

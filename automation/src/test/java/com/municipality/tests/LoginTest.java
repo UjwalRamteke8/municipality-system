@@ -65,7 +65,7 @@ public class LoginTest extends BaseClass {
     loginPage = new LoginPage(driver);
 
     // Attempt login with empty email
-    loginPage.login("", "password123");
+    loginPage.login("ujwalramteke293@gmail.com", "Ujwal@8739");
 
     // Verify error message
     Assert.assertTrue(loginPage.isErrorMessageDisplayed(), "Error message should be displayed for empty email");

@@ -7,7 +7,7 @@ import User from "../models/User.js";
 // Keep your existing createToken, register, and login functions...
 // (I am only showing the fixed departmentLogin function below)
 
-const createToken = (userId, role = null, department = null) => {
+export const createToken = (userId, role = null, department = null) => {
   const payload = { id: userId };
   if (role) payload.role = role;
   if (department) payload.department = department;

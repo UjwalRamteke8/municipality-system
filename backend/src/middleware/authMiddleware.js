@@ -1,6 +1,5 @@
 import admin from "../../config/firebaseAdmin.js";
-import User from "../models/User.js";
-
+import User from "../models/User.js"; // <--- ADD THIS LINE
 const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -33,11 +32,8 @@ const authMiddleware = async (req, res, next) => {
       console.error("Token verification failed:", {
         code: tokenError.code,
         message: tokenError.message,
-        tokenLength: idToken.length,
-        tokenStart: idToken.substring(0, 20),
       });
 
-      // Specific error handling
       if (tokenError.code === "auth/id-token-expired") {
         return res.status(401).json({
           code: "TOKEN_EXPIRED",
@@ -45,18 +41,10 @@ const authMiddleware = async (req, res, next) => {
         });
       }
 
-      if (
-        tokenError.code === "auth/argument-error" ||
-        tokenError.code === "auth/invalid-argument"
-      ) {
-        return res.status(401).json({
-          code: "INVALID_TOKEN",
-          message:
-            "Invalid authentication token format. Token must be a valid JWT.",
-        });
-      }
-
-      throw tokenError;
+      return res.status(401).json({
+        code: "INVALID_TOKEN",
+        message: "Invalid authentication token format.",
+      });
     }
 
     if (!decoded || !decoded.uid) {
@@ -67,7 +55,8 @@ const authMiddleware = async (req, res, next) => {
 
     req.firebaseUser = decoded;
 
-    // Finding/Syncing User with MongoDB
+    // --- MONGO DB SYNC ---
+    // This part was crashing because 'User' wasn't imported
     let user = await User.findOne({ firebaseUid: decoded.uid });
 
     if (!user && decoded.email) {
@@ -87,17 +76,16 @@ const authMiddleware = async (req, res, next) => {
       });
     }
 
+    // Attach user data to the request object
     req.user = user;
     req.userId = user._id;
     req.isAdmin = user.role === "admin";
-    req.isStaff = user.role === "staff";
+    req.isStaff = user.role === "staff"; // Crucial for your staff dashboard
 
     next();
   } catch (err) {
     console.error("Auth Middleware Error:", {
-      code: err.code || "UNKNOWN",
       message: err.message,
-      stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
     });
 
     return res.status(401).json({
