@@ -15,16 +15,16 @@
 
     <!-- Properties -->
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <selenium.version>4.15.0</selenium.version>
-        <testng.version>7.8.1</testng.version>
+        <testng.version>7.8.0</testng.version>
         <log4j.version>2.21.1</log4j.version>
     </properties>
 
     <!-- Dependencies -->
     <dependencies>
+
         <!-- Selenium WebDriver -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
@@ -43,7 +43,7 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>${testng.version}</version>
+            <version>7.9.0</version>
         </dependency>
 
         <!-- Log4j2 for Logging -->
@@ -89,8 +89,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
+                    <release>17</release>
                 </configuration>
             </plugin>
 
@@ -107,11 +106,7 @@
             </plugin>
 
             <!-- Maven Shade Plugin (for creating fat JAR if needed) -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.0</version>
-            </plugin>
+
         </plugins>
     </build>
 

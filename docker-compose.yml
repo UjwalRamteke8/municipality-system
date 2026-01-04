@@ -1,0 +1,34 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    # Note: Your backend logs show MongoDB ENOTFOUND. 
+    # You need a mongo service for the backend to work!
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  chrome:
+    image: selenium/standalone-chrome:4.15.0
+    shm_size: '2gb'
+
+  automation:
+    build: ./automation
+    depends_on:
+      - frontend
+      - chrome
+    environment:
+      - REMOTE_URL=http://chrome:4444/wd/hub
+      - BASE_URL=http://frontend:3000

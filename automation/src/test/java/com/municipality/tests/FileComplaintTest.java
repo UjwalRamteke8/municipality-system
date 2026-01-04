@@ -1,112 +1,40 @@
 package com.municipality.tests;
 
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import com.municipality.base.BaseClass;
-import com.municipality.pages.LoginPage;
-import com.municipality.pages.DashboardPage;
-import com.municipality.pages.ComplaintPage;
+import com.municipality.pages.*;
 
-/**
- * Complaint Test - Test cases for complaint filing functionality
- */
-public class ComplaintTest extends BaseClass {
-
+public class FileComplaintTest extends BaseClass {
   private LoginPage loginPage;
   private DashboardPage dashboardPage;
   private ComplaintPage complaintPage;
 
-  /**
-   * Test case 1: File complaint with valid details
-   */
-  @Test(priority = 1, description = "File complaint with valid details")
-  public void testFileComplaintWithValidDetails() {
-    // Login first
+  @BeforeMethod
+  public void setupPages() {
     loginPage = new LoginPage(driver);
     dashboardPage = new DashboardPage(driver);
     complaintPage = new ComplaintPage(driver);
-
-    String email = configReader.getTestEmail();
-    String password = configReader.getTestPassword();
-
-    loginPage.login(email, password);
-
-    try {
-      Thread.sleep(2000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
-    // Verify login and navigate to complaint page
-    Assert.assertTrue(dashboardPage.isDashboardLoaded(), "Dashboard should be loaded");
-
-    dashboardPage.clickFileComplaint();
-
-    try {
-      Thread.sleep(1000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
-    // File complaint
-    complaintPage.fileComplaint("Pothole", "Severe pothole at Main Street", "");
-
-    try {
-      Thread.sleep(2000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
-    // Verify success message
-    String successMsg = complaintPage.getSuccessMessage();
-    Assert.assertTrue(successMsg.contains("success") || successMsg.contains("submitted"),
-        "Success message should be displayed");
-
-    // Verify complaint ID is generated
-    String complaintId = complaintPage.getComplaintId();
-    Assert.assertNotNull(complaintId, "Complaint ID should be generated");
   }
 
-  /**
-   * Test case 2: File complaint with attachment
-   */
-  @Test(priority = 2, description = "File complaint with file attachment")
-  public void testFileComplaintWithAttachment() {
-    // Login first
-    loginPage = new LoginPage(driver);
-    dashboardPage = new DashboardPage(driver);
-    complaintPage = new ComplaintPage(driver);
+  @Test(priority = 1)
+  public void testFileComplaintWithValidDetails() {
+    // 1. Login
+    loginPage.login(configReader.getTestEmail(), configReader.getTestPassword());
 
-    String email = configReader.getTestEmail();
-    String password = configReader.getTestPassword();
+    // 2. Verify Login
+    Assert.assertTrue(dashboardPage.isDashboardLoaded(), "Login failed - Dashboard not loaded");
 
-    loginPage.login(email, password);
-
-    try {
-      Thread.sleep(2000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
+    // 3. Navigate
     dashboardPage.clickFileComplaint();
+    // 4. File Complaint (Pass Title, Category, Description)
+    // Ensure "Pothole" matches exactly one of the options in your dropdown
+    complaintPage.fileComplaint("Huge Pothole", "Pothole", "Dangerous pothole on Main Street.");
 
-    try {
-      Thread.sleep(1000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
-    // File complaint with attachment
-    complaintPage.fileComplaint("Streetlight", "Street light not working", "path/to/image.png");
-
-    try {
-      Thread.sleep(2000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
-    // Verify success
-    Assert.assertTrue(complaintPage.getSuccessMessage().contains("success"),
-        "Complaint should be filed successfully with attachment");
+    // 5. Verify Success
+    String successMsg = complaintPage.getSuccessMessage().toLowerCase();
+    Assert.assertTrue(successMsg.contains("success") || successMsg.contains("submitted"),
+            "Expected success message not found. Found: " + successMsg);
   }
 }

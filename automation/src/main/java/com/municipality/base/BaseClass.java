@@ -2,58 +2,63 @@ package com.municipality.base;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.edge.EdgeDriver;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.AfterTest;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterMethod;
 import com.municipality.utils.ConfigReader;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.time.Duration;
+
 public class BaseClass {
-    
-    public static WebDriver driver;
+    public WebDriver driver;
     protected ConfigReader configReader;
-    
-    /**
-     * Initialize WebDriver based on browser type from config
-     */
-    @BeforeTest
-    public void setUp() {
+
+    @BeforeMethod
+    public void setUp() throws MalformedURLException {
+        String remoteUrl = System.getenv("REMOTE_URL");
+
+        if (remoteUrl != null) {
+            // Run in Docker
+            ChromeOptions options = new ChromeOptions();
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-dev-shm-usage");
+            driver = new RemoteWebDriver(new URL(remoteUrl), options);
+        } else {
+            // Run locally as usual
+            WebDriverManager.chromedriver().setup();
+            driver = new ChromeDriver();
+        }
+        driver.manage().window().maximize();
         configReader = new ConfigReader();
         String browser = configReader.getBrowser();
-        String appUrl = configReader.getApplicationUrl();
-        
-        // Initialize WebDriver based on browser
+
         switch (browser.toLowerCase()) {
-            case "chrome":
+            case "chrome" -> {
                 WebDriverManager.chromedriver().setup();
                 driver = new ChromeDriver();
-                break;
-            case "firefox":
+            }
+            case "firefox" -> {
                 WebDriverManager.firefoxdriver().setup();
                 driver = new FirefoxDriver();
-                break;
-            case "edge":
-                WebDriverManager.edgedriver().setup();
-                driver = new EdgeDriver();
-                break;
-            default:
+            }
+            default -> {
                 WebDriverManager.chromedriver().setup();
                 driver = new ChromeDriver();
+            }
         }
-        
-        // Set implicit wait and navigate to URL
+
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         driver.manage().window().maximize();
-        driver.get(appUrl);
+        driver.get(configReader.getApplicationUrl());
     }
-    
-    /**
-     * Close WebDriver after test execution
-     */
-    @AfterTest
+
+    @AfterMethod
     public void tearDown() {
-        if (driver != null) {
-            driver.quit();
-        }
+        if (driver != null) driver.quit();
     }
 }

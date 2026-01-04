@@ -1,82 +1,46 @@
 package com.municipality.pages;
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.By;
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
 
-/**
- * Complaint Page - Contains locators and methods for complaint filing
- * functionality
- */
 public class ComplaintPage {
-
   private WebDriver driver;
+  private WebDriverWait wait;
 
-  // Locators
-  private By categoryDropdown = By.id("complaint-category");
-  private By descriptionField = By.id("complaint-description");
-  private By attachmentInput = By.id("file-upload");
-  private By submitButton = By.xpath("//button[@type='submit' and contains(text(), 'Submit')]");
-  private By successMessage = By.className("success-message");
-  private By complaintIdField = By.id("complaint-id");
 
-  // Constructor
+  private By titleField = By.xpath("//input[contains(@placeholder, 'Title') or @name='title']");
+  private By categoryDropdown = By.xpath("//select[contains(@name, 'category') or contains(@class, 'select')]");
+  private By descriptionField = By.xpath("//textarea[contains(@placeholder, 'Describe') or @name='description']");
+  private By submitButton = By.xpath("//button[@type='submit']");
+  private By successMessage = By.xpath("//div[contains(text(),'Success') or contains(text(),'submitted')]");
+
   public ComplaintPage(WebDriver driver) {
     this.driver = driver;
+    this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
   }
 
-  // Page Actions
-  /**
-   * Select complaint category from dropdown
-   */
-  public void selectCategory(String category) {
-    driver.findElement(categoryDropdown).click();
-    driver.findElement(By.xpath("//option[text()='" + category + "']")).click();
-  }
+  public void fileComplaint(String title, String category, String description) {
+    // Wait for the form to appear (this fixes the TimeoutException)
+    WebElement titleInput = wait.until(ExpectedConditions.visibilityOfElementLocated(titleField));
 
-  /**
-   * Enter complaint description
-   */
-  public void enterDescription(String description) {
+    titleInput.clear();
+    titleInput.sendKeys(title);
+
+    driver.findElement(categoryDropdown).sendKeys(category);
     driver.findElement(descriptionField).sendKeys(description);
+
+    // Click submit
+    WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(submitButton));
+    ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
   }
 
-  /**
-   * Upload attachment file
-   */
-  public void uploadAttachment(String filePath) {
-    driver.findElement(attachmentInput).sendKeys(filePath);
-  }
-
-  /**
-   * Click submit button
-   */
-  public void clickSubmitButton() {
-    driver.findElement(submitButton).click();
-  }
-
-  /**
-   * File a complaint with all details
-   */
-  public void fileComplaint(String category, String description, String filePath) {
-    selectCategory(category);
-    enterDescription(description);
-    if (filePath != null && !filePath.isEmpty()) {
-      uploadAttachment(filePath);
-    }
-    clickSubmitButton();
-  }
-
-  /**
-   * Get success message
-   */
   public String getSuccessMessage() {
-    return driver.findElement(successMessage).getText();
-  }
-
-  /**
-   * Get generated complaint ID
-   */
-  public String getComplaintId() {
-    return driver.findElement(complaintIdField).getText();
+    try {
+      return wait.until(ExpectedConditions.visibilityOfElementLocated(successMessage)).getText();
+    } catch (Exception e) {
+      return "Message not found";
+    }
   }
 }

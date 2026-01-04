@@ -1,82 +1,54 @@
 package com.municipality.pages;
 
+import java.time.Duration;
+
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.By;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
-/**
- * Login Page - Contains locators and methods for login functionality
- * Page Object Model approach
- */
 public class LoginPage {
 
   private WebDriver driver;
+  private WebDriverWait wait;
 
-  // Locators
-  private By emailInput = By.id("email");
-  private By passwordInput = By.id("password");
-  private By loginButton = By.xpath("//button[@type='submit' and contains(text(), 'Login')]");
-  private By errorMessage = By.className("error-message");
-  private By forgotPasswordLink = By.linkText("Forgot Password?");
-
-  // Constructor
   public LoginPage(WebDriver driver) {
     this.driver = driver;
+    this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
   }
 
-  // Page Actions
-  /**
-   * Enter email in email input field
-   */
-  public void enterEmail(String email) {
-    driver.findElement(emailInput).sendKeys(email);
-  }
+  private By emailInput = By.xpath("//input[@type='email']");
+  private By passwordInput = By.xpath("//input[@type='password']");
+  private By signInButton = By.xpath("//button[contains(text(),'Sign In')]");
+  private By errorMessage = By.xpath("//*[contains(text(),'Invalid') or contains(text(),'error')]");
 
-  /**
-   * Enter password in password input field
-   */
-  public void enterPassword(String password) {
-    driver.findElement(passwordInput).sendKeys(password);
-  }
-
-  /**
-   * Click on Login button
-   */
-  public void clickLoginButton() {
-    driver.findElement(loginButton).click();
-  }
-
-  /**
-   * Perform login with email and password
-   */
   public void login(String email, String password) {
-    enterEmail(email);
-    enterPassword(password);
-    clickLoginButton();
+
+    WebElement emailField =
+            wait.until(ExpectedConditions.visibilityOfElementLocated(emailInput));
+    emailField.clear();
+    emailField.sendKeys(email);
+
+    WebElement passwordField =
+            wait.until(ExpectedConditions.visibilityOfElementLocated(passwordInput));
+    passwordField.clear();
+    passwordField.sendKeys(password);
+
+    wait.until(ExpectedConditions.elementToBeClickable(signInButton)).click();
   }
 
-  /**
-   * Get error message text
-   */
-  public String getErrorMessage() {
-    return driver.findElement(errorMessage).getText();
-  }
-
-  /**
-   * Check if error message is displayed
-   */
   public boolean isErrorMessageDisplayed() {
     try {
-      return driver.findElement(errorMessage).isDisplayed();
+      return wait.until(
+              ExpectedConditions.visibilityOfElementLocated(errorMessage)
+      ).isDisplayed();
     } catch (Exception e) {
       return false;
     }
   }
 
-  /**
-   * Click on Forgot Password link
-   */
-  public void clickForgotPasswordLink() {
-    driver.findElement(forgotPasswordLink).click();
+  public String getErrorMessage() {
+    return driver.findElement(errorMessage).getText();
   }
 }

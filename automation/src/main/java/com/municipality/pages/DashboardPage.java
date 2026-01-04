@@ -1,64 +1,55 @@
 package com.municipality.pages;
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.By;
+import java.time.Duration;
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
-/**
- * Dashboard Page - Contains locators and methods for dashboard functionality
- */
 public class DashboardPage {
 
   private WebDriver driver;
+  private WebDriverWait wait;
 
-  // Locators
-  private By welcomeMessage = By.xpath("//h1[contains(text(), 'Welcome')]");
-  private By userProfileButton = By.id("user-profile");
-  private By logoutButton = By.xpath("//button[contains(text(), 'Logout')]");
-  private By servicesSection = By.id("services-section");
-  private By complaintButton = By.xpath("//button[contains(text(), 'File Complaint')]");
-
-  // Constructor
   public DashboardPage(WebDriver driver) {
     this.driver = driver;
+    this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
   }
 
-  // Page Actions
-  /**
-   * Get welcome message text
-   */
-  public String getWelcomeMessage() {
-    return driver.findElement(welcomeMessage).getText();
-  }
+  // Update these specific locators in DashboardPage.java
+  private By availableServicesNavLink = By.xpath("//a[contains(@href, 'citizen-services')]");
 
-  /**
-   * Check if dashboard is loaded successfully
-   */
+  // Flex-locator: Finds the link inside the card that mentions 'Register' or 'Complaint'
+  private By startComplaintButton = By.xpath("//h3[contains(text(),'File Complaint') or contains(text(),'Register')]/parent::div//a");
+  private By citizenBadge = By.xpath("//span[contains(text(),'CITIZEN')] | //nav//img");
+
+
+  // --- ACTIONS ---
+
   public boolean isDashboardLoaded() {
     try {
-      return driver.findElement(welcomeMessage).isDisplayed();
+      wait.until(ExpectedConditions.urlContains("3000")); // Ensure we are on the app
+      wait.until(ExpectedConditions.visibilityOfElementLocated(citizenBadge));
+      return true;
     } catch (Exception e) {
+      System.out.println("Dashboard verification failed. Current URL: " + driver.getCurrentUrl());
       return false;
     }
   }
 
-  /**
-   * Click on user profile button
-   */
-  public void clickUserProfile() {
-    driver.findElement(userProfileButton).click();
-  }
-
-  /**
-   * Click on logout button
-   */
-  public void clickLogout() {
-    driver.findElement(logoutButton).click();
-  }
-
-  /**
-   * Click on File Complaint button
-   */
   public void clickFileComplaint() {
-    driver.findElement(complaintButton).click();
+    // 1. Go to Services Page
+    WebElement navLink = wait.until(ExpectedConditions.elementToBeClickable(availableServicesNavLink));
+    ((JavascriptExecutor) driver).executeScript("arguments[0].click();", navLink);
+
+    // 2. Wait for cards to load
+    wait.until(ExpectedConditions.urlContains("citizen-services"));
+
+    // 3. Find and click the ACCESS NOW link on the specific card
+    // Target the first link in the card container
+    WebElement btn = wait.until(ExpectedConditions.presenceOfElementLocated(startComplaintButton));
+
+    JavascriptExecutor js = (JavascriptExecutor) driver;
+    js.executeScript("arguments[0].scrollIntoView({block: 'center'});", btn);
+    js.executeScript("arguments[0].click();", btn);
   }
 }
