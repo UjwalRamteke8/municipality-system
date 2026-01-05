@@ -50,7 +50,14 @@ app.use(
 );
 
 app.use(express.json());
-app.use(cors()); // Allows all origins for development
+
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
+// Allows all origins for development
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -58,6 +65,10 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api", apiRoutes);
 
 app.use(errorHandler);
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK" });
+});
 
 const server = http.createServer(app);
 
