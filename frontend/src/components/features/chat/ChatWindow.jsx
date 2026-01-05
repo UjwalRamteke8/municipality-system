@@ -28,7 +28,6 @@ export default function ChatWindow() {
     setIsTyping(true);
 
     try {
-      // Ensure this matches your backend URL: http://localhost:5000
       const { data } = await api.post("/api/ai/chat", {
         prompt: input,
       });

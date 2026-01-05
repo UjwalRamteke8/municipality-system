@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
+import api from "../../lib/api";
 import { auth } from "../../firebase/firebaseconfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
@@ -50,10 +50,15 @@ function StaffLogin() {
       const idToken = await userCredential.user.getIdToken();
 
       // Ensure the URL matches the backend route we just fixed
-      const { data } = await axios.post(
-        "http://localhost:5000/api/auth/verify-staff",
+
+      const { data } = await api.post(
+        "/api/auth/verify-staff",
         { department: formData.staff },
-        { headers: { Authorization: `Bearer ${idToken}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+          },
+        }
       );
 
       localStorage.setItem("token", idToken);

@@ -18,8 +18,6 @@ import {
 import api from "../../../services/api";
 import { useNavigate } from "react-router-dom";
 
-const BACKEND_URL = "http://localhost:5000";
-
 export default function ServiceForm() {
   const navigate = useNavigate();
   const [files, setFiles] = useState([]);

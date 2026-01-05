@@ -2,7 +2,7 @@ import axios from "axios";
 import { getAuth } from "firebase/auth";
 
 // NOTE: Using 127.0.0.1 is sometimes safer than localhost on Windows to avoid IPv6 lookup issues
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:5000";
+const BACKEND_URL = import.meta.env.VITE_API_BASE_URL;
 
 /**
  * Upload a photo (FormData) to backend.
