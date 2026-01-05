@@ -17,7 +17,7 @@ import errorHandler from "./src/middleware/errorHandler.js";
 import { initializeChat } from "./src/socket/chatSocket.js";
 import { startSensorSimulator } from "./src/iot/sensorSimulator.js";
 
-console.log("ENV PATH:", process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
+console.log("ENV PATH:", process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
