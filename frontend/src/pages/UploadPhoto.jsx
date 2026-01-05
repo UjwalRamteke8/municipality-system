@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 // In real app, switch to import.meta.env
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = process.env.VITE_API_BASE_URL;
 
 const uploadPhotoRequest = async (formData) => {
   const res = await api.post(`/photos/upload`, formData, {

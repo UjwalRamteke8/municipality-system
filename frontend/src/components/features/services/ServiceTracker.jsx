@@ -15,7 +15,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = process.env.VITE_API_BASE_URL;
 
 const getImageUrl = (path) => {
   if (!path) return "";
