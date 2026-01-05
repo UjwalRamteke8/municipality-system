@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
-import StaffSidebar from "../../components/layouts/StaffSideBar";
+import StaffSidebar from "../../components/layouts/StaffSidebar";
 const getStatusColor = (status) => {
   const s = status ? status.toLowerCase() : "";
   switch (s) {
