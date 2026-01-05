@@ -259,331 +259,102 @@ sequenceDiagram
 
 ---
 
-## 🚀 Installation & Setup
+## 🚀 Installation, Environment & Production setup
 
-### Prerequisites
+> Important: This project expects specific environment variable names in code — ensure you set them exactly (see *Environment variables* below). Use a secrets manager for production instead of committing `.env` files.
 
-Ensure you have the following installed:
+### Dev prerequisites
 
-- **Node.js** (v18.0.0 or higher)
-- **npm** or **yarn** package manager
-- **MongoDB Atlas** account (or local MongoDB)
-- **Git** version control
-- **Docker** (optional, for containerization)
+- Node.js (v18+ recommended)
+- npm or yarn
+- MongoDB Atlas (or local instance)
+- Git
+- Docker (optional)
 
-### Step 1: Clone the Repository
-
-```bash
-git clone https://github.com/yourusername/municipality-system.git
-cd municipality-system
-```
-
-### Step 2: Set Up Backend
+### Backend: quickstart
 
 ```bash
 cd backend
-
-# Install dependencies
 npm install
-
-# Create .env file
-cat > .env << EOF
-# Server Configuration
-PORT=5000
-NODE_ENV=development
-
-# Database
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/municipality
-
-# Firebase Configuration
-FIREBASE_SERVICE_ACCOUNT_PATH=./firebase-service.json
-FIREBASE_PROJECT_ID=your-project-id
-FIREBASE_API_KEY=your-api-key
-
-# AI & APIs
-GEMINI_API_KEY=your-gemini-api-key
-OPENAI_API_KEY=your-openai-api-key
-
-# Cloudinary (Image Storage)
-CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
-
-# Payment Gateway (if applicable)
-STRIPE_SECRET_KEY=your-stripe-key
-STRIPE_PUBLISHABLE_KEY=your-publishable-key
-
-# JWT Secret
-JWT_SECRET=your-super-secret-jwt-key
-
-# CORS Settings
-CORS_ORIGIN=http://localhost:3000
-EOF
-
-# Add Firebase service account JSON file
-# (Download from Firebase Console and save as firebase-service.json)
-
-# Run the server
-npm start
-# Or for development with auto-reload
-npm run dev
+# Create a .env file using the variables below
+npm run dev  # runs nodemon server.js
 ```
 
-Server will start at: `http://localhost:5000`
+Backend health check: `http://localhost:5000/health`
 
-### Step 3: Set Up Frontend
+### Frontend: quickstart
 
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Create .env file (if needed)
-cat > .env << EOF
-VITE_API_URL=http://localhost:5000/api
-VITE_FIREBASE_API_KEY=your-firebase-key
-VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your-project-id
-VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
-VITE_FIREBASE_APP_ID=your-app-id
-EOF
-
-# Run development server
+# Create a .env with VITE_* variables
 npm run dev
 ```
 
-Frontend will be available at: `http://localhost:3000`
+Frontend local: `http://localhost:3000`
 
-### Step 4: Run with Docker (Optional)
-
-```bash
-cd docker
-
-# Build and run containers
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop containers
-docker-compose down
-```
-
-### Step 5: Verify Installation
-
-Check that both servers are running:
+### Docker (optional)
 
 ```bash
-# Check backend (should return API response)
-curl http://localhost:5000/api/health
-
-# Check frontend (open in browser)
-http://localhost:3000
+# From repository root
+docker-compose up -d --build
 ```
 
 ---
 
-## 📚 API Documentation
+## ⚙️ Environment variables (canonical — please follow these names)
 
-### Base URL
+Server-side env vars (key names used by code):
 
-```
-http://localhost:5000/api
-```
+- `PORT` — Server port (default: 5000)
+- `NODE_ENV` — environment (development|production)
+- `CLIENT_URL` — allowed origin for CORS (frontend URL)
+- `MONGO_URI` — MongoDB connection string (used by backend/config/db.js)
+- `FIREBASE_SERVICE_ACCOUNT_JSON` — JSON string of Firebase service account (backend/config/firebaseAdmin.js parses this)
+  - Example (Linux/macOS): `export FIREBASE_SERVICE_ACCOUNT_JSON=$(jq -c . ./firebase-service.json)`
+  - For PowerShell: `$env:FIREBASE_SERVICE_ACCOUNT_JSON = Get-Content .\firebase-service.json -Raw`
+- `JWT_SECRET` — JWT secret for tokens (if applicable)
+- `JWT_EXPIRES_IN` — expiration for JWTs (e.g., 7d)
+- `OPENAI_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY` — optional API keys
+- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` — for Cloudinary
+- `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_REGION` — optional S3
 
-### Authentication
-
-All protected endpoints require a **Bearer token** from Firebase:
-
-```bash
-Authorization: Bearer <firebase-token>
-```
-
-### Core API Endpoints
-
-#### 1. **Complaints API**
-
-**Create Complaint**
-
-```http
-POST /api/complaints
-Content-Type: application/json
-Authorization: Bearer <token>
-
-{
-  "title": "Pothole on Main Street",
-  "description": "Large pothole causing damage",
-  "category": "Road Maintenance",
-  "priority": "high",
-  "location": {
-    "address": "Main Street, City",
-    "latitude": 40.7128,
-    "longitude": -74.0060
-  }
-}
-```
-
-Response: `201 Created`
-
-```json
-{
-  "_id": "612a4b7c8d9e0f2a3c4e5f6g",
-  "complaintId": "#12345",
-  "userId": "user-uuid",
-  "status": "Open",
-  "createdAt": "2025-12-22T10:30:00Z",
-  "updatedAt": "2025-12-22T10:30:00Z"
-}
-```
-
-**Fetch Complaint Status**
-
-```http
-GET /api/complaints/:complaintId
-Authorization: Bearer <token>
-```
-
-**Update Complaint Status** (Admin only)
-
-```http
-PUT /api/complaints/:complaintId
-Authorization: Bearer <admin-token>
-Content-Type: application/json
-
-{
-  "status": "In Progress",
-  "remarks": "Team assigned to fix"
-}
-```
-
-#### 2. **Citizens Services API**
-
-**Apply for Certificate**
-
-```http
-POST /api/services/certificate
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "certificateType": "birth",
-  "childName": "John Doe",
-  "dateOfBirth": "2020-01-15"
-}
-```
-
-#### 3. **Payment API**
-
-**Initiate Payment**
-
-```http
-POST /api/payments/initiate
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "amount": 500,
-  "service": "tax_payment",
-  "description": "Municipal Tax - Property ID: 12345"
-}
-```
-
-### Full API Documentation
-
-For comprehensive API documentation with all endpoints, request/response examples, and error codes, refer to:
-
-- **Swagger/OpenAPI Docs**: `http://localhost:5000/api-docs`
-- **Postman Collection**: [Download Here](./docs/api-docs.yaml)
+Frontend-side (Vite):
+- `VITE_API_URL` — e.g., `http://localhost:5000/api`
+- `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_APP_ID` — Firebase client config
 
 ---
 
-## 🤝 Contributing Guidelines
+## 🔐 Production & security recommendations
 
-We welcome contributions from the community! Please follow these guidelines:
-
-### How to Contribute
-
-1. **Fork the Repository**
-
-   ```bash
-   git clone https://github.com/yourusername/municipality-system.git
-   ```
-
-2. **Create a Feature Branch**
-
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-3. **Make Your Changes**
-
-   - Write clean, well-documented code
-   - Follow existing code style and conventions
-   - Ensure all tests pass
-   - Add tests for new features
-
-4. **Commit Your Changes**
-
-   ```bash
-   git add .
-   git commit -m "feat: add new feature description"
-   ```
-
-5. **Push to Your Fork**
-
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-
-6. **Submit a Pull Request**
-   - Provide a clear description of changes
-   - Reference any related issues (#123)
-   - Ensure CI/CD checks pass
-
-### Code Standards
-
-- **JavaScript/ES6+**: Use modern syntax, avoid `var`
-- **Naming**: Use camelCase for variables, PascalCase for components/classes
-- **Comments**: Add comments for complex logic
-- **Error Handling**: Always handle errors gracefully
-- **Testing**: Write unit tests for new features
-
-### Reporting Issues
-
-Found a bug? Please create an issue with:
-
-- Clear title and description
-- Steps to reproduce
-- Expected vs. actual behavior
-- Environment details (OS, Node version, etc.)
-- Screenshots (if applicable)
+- Use a secrets manager (Azure Key Vault, AWS Secrets Manager, GitHub Actions Secrets) for `FIREBASE_SERVICE_ACCOUNT_JSON` and API keys.
+- Restrict network access to MongoDB (allow only app hosts or VPCs).
+- Use HTTPS/TLS and HSTS for public endpoints.
+- Monitor, log and configure alerting for errors and key metrics.
 
 ---
 
-## 📄 License
+## 📦 Deployment guidance
 
-This project is licensed under the **MIT License** - see the [LICENSE](./LICENSE) file for details.
-
----
-
-## 📞 Support & Contact
-
-- **Documentation**: [Wiki](./docs)
-- **Email**: support@civicconnect.local
-- **Issues**: [GitHub Issues](https://github.com/yourusername/municipality-system/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/municipality-system/discussions)
+- Frontend: build (`npm run build`) and deploy to Vercel/Netlify/GCP or your CDN
+- Backend: run as Docker container behind a reverse proxy (Nginx) or host on managed containers
+- Attach to MongoDB Atlas, configure backups and monitoring
 
 ---
 
-## 🙏 Acknowledgments
+## 🔧 Troubleshooting
 
-- Built with ❤️ by the CivicConnect Team
-- Special thanks to all contributors and community members
-- Powered by open-source technologies
+- If backend fails to start: confirm `MONGO_URI` is set and accessible
+- Firebase token verification errors: ensure `FIREBASE_SERVICE_ACCOUNT_JSON` is valid and has proper IAM roles
+- CORS issues: confirm `CLIENT_URL` matches your front-end URL
 
 ---
 
-**Last Updated**: December 22, 2025  
-**Version**: 1.0.0
+## 🧾 Changelog (recent)
+
+- **2026-01-05** — Aligned README to actual code usage: `MONGO_URI` and `FIREBASE_SERVICE_ACCOUNT_JSON` are the canonical env vars. Added production deployment guidance and security notes.
+
+---
+
+(End of updated installation & environment section)
+

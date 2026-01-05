@@ -26,15 +26,14 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://ai-chat-eosin-rho.vercel.app"],
+    origin: process.env.CLIENT_URL,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-const allowedOrigins = [
-  "http://localhost:3000",
-  "http://localhost:5173",
-  // You will add your Vercel domain here later, e.g., "https://pmc-system.vercel.app"
-];
+
+const allowedOrigins = ["https://municipality-system.vercel.app/"];
 
 app.use(
   cors({
@@ -51,12 +50,6 @@ app.use(
 
 app.use(express.json());
 
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL,
-    credentials: true,
-  })
-);
 // Allows all origins for development
 app.use(express.urlencoded({ extended: true }));
 
@@ -85,6 +78,9 @@ startSensorSimulator(io, {
   intervalMs: 5000,
   sensorCount: 3,
 });
+
+// IMPORTANT: handle preflight
+app.options("*", cors());
 
 const PORT = process.env.PORT || 5000;
 
