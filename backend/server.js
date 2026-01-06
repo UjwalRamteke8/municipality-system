@@ -1,4 +1,3 @@
-// backend/server.js
 import express from "express";
 import cors from "cors";
 import http from "http";
@@ -18,7 +17,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-/* -------------------- CORS (PRODUCTION SAFE) -------------------- */
+/* -------------------- CORS (GLOBAL, SINGLE) -------------------- */
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
@@ -27,7 +26,6 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
 app.options("*", cors());
 
 /* -------------------- MIDDLEWARE -------------------- */
@@ -45,7 +43,7 @@ app.get("/health", (req, res) => {
 /* -------------------- ERROR HANDLER -------------------- */
 app.use(errorHandler);
 
-/* -------------------- SERVER & SOCKET -------------------- */
+/* -------------------- SOCKET -------------------- */
 const server = http.createServer(app);
 
 const io = new Server(server, {
@@ -57,11 +55,11 @@ const io = new Server(server, {
 
 initializeChat(io);
 
-/* -------------------- DATABASE & SERVICES -------------------- */
+/* -------------------- DB & SERVICES -------------------- */
 connectDB();
 startSensorSimulator(io, { intervalMs: 5000, sensorCount: 3 });
 
-/* -------------------- START SERVER -------------------- */
+/* -------------------- START -------------------- */
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`🚀 Backend running on port ${PORT}`);

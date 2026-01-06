@@ -1,42 +1,51 @@
+// backend/src/routes/aiRoute.js
+
 import express from "express";
 import OpenAI from "openai";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const router = express.Router();
 
+// Initialize Groq (OpenAI-compatible) client
 const client = new OpenAI({
   apiKey: process.env.GROQ_API_KEY,
   baseURL: "https://api.groq.com/openai/v1",
 });
 
+// POST /api/ai/chat
 router.post("/chat", async (req, res) => {
   try {
-    const { prompt } = req.body;
-    if (!prompt) return res.status(400).json({ error: "Prompt is required" });
+    const { message } = req.body;
 
-    // Use a try/catch specifically for the API call to log details
+    if (!message) {
+      return res.status(400).json({ error: "Message is required" });
+    }
+
     const completion = await client.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
       messages: [
         {
           role: "system",
           content:
-            "You are the Pune Municipal Corporation (PMC) Assistant. Answer civic queries professionally.",
+            "You are the Municipal Corporation (PMC) Civic Assistant. Answer civic queries professionally and clearly.",
         },
-        { role: "user", content: prompt },
+        {
+          role: "user",
+          content: message,
+        },
       ],
-      model: "llama-3.3-70b-versatile",
     });
 
-    const reply = completion.choices[0].message.content;
-    res.json({ reply });
+    const reply =
+      completion.choices?.[0]?.message?.content ||
+      "Sorry, I could not generate a response at the moment.";
+
+    return res.status(200).json({ reply });
   } catch (error) {
-    console.error("AI Backend Error:", error.message);
-    // Return the actual error message to the frontend console for debugging
-    res
-      .status(500)
-      .json({ error: "Failed to generate response", details: error.message });
+    console.error("AI Backend Error:", error);
+
+    return res.status(500).json({
+      error: "AI Assistant is temporarily unavailable",
+    });
   }
 });
 
