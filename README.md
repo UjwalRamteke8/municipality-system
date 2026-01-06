@@ -261,7 +261,7 @@ sequenceDiagram
 
 ## 🚀 Installation, Environment & Production setup
 
-> Important: This project expects specific environment variable names in code — ensure you set them exactly (see *Environment variables* below). Use a secrets manager for production instead of committing `.env` files.
+> Important: This project expects specific environment variable names in code — ensure you set them exactly (see _Environment variables_ below). Use a secrets manager for production instead of committing `.env` files.
 
 ### Dev prerequisites
 
@@ -320,6 +320,7 @@ Server-side env vars (key names used by code):
 - `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_REGION` — optional S3
 
 Frontend-side (Vite):
+
 - `VITE_API_URL` — e.g., `http://localhost:5000/api`
 - `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_APP_ID` — Firebase client config
 
@@ -357,4 +358,3 @@ Frontend-side (Vite):
 ---
 
 (End of updated installation & environment section)
-

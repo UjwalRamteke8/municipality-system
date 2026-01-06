@@ -85,7 +85,16 @@ app.options("*", cors());
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
+  console.log("Backend running on port 5000");
   console.log(`🚀 Server running → http://localhost:${PORT}`);
   console.log("💬 Socket.IO ready");
   console.log("📡 IoT Sensor Simulator active");
+});
+
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    service: "Municipality Backend",
+    time: new Date().toISOString(),
+  });
 });

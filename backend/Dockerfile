@@ -1,19 +1,12 @@
-# Backend container configuration
-# Use Node.js as the base image
-FROM node:18-alpine
+FROM node:20-alpine
 
-# Set the working directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Copy package files and install dependencies
 COPY package*.json ./
-RUN npm install
+RUN npm ci --only=production
 
-# Copy the rest of the backend code
 COPY . .
 
-# Expose the port your backend runs on (e.g., 5000)
 EXPOSE 5000
 
-# Start the server
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
