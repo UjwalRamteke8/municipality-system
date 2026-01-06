@@ -3,12 +3,31 @@ import asyncHandler from "express-async-handler";
 import admin from "firebase-admin";
 import User from "../models/User.js";
 
+// Keep your existing createToken, register, and login functions...
+// (I am only showing the fixed departmentLogin function below)
+
 export const createToken = (userId, role, department) => {
   return jwt.sign({ id: userId, role, department }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   });
 };
+export const register = asyncHandler(async (req, res) => {
+  // ... keep existing register code ...
+  // (Ensure you copy the implementation from your existing file if not changing it)
+  const { name, email, phone, address, password, role = "citizen" } = req.body;
+  // ... rest of register ...
+  // Placeholder to save space - keep your original register code here
+});
 
+export const login = asyncHandler(async (req, res) => {
+  // ... keep existing login code ...
+});
+
+export const getProfile = asyncHandler(async (req, res) => {
+  // ... keep existing getProfile code ...
+});
+
+// --- THE FIXED FUNCTION ---
 export const departmentLogin = asyncHandler(async (req, res) => {
   const { department } = req.body;
   const authHeader = req.headers.authorization;
