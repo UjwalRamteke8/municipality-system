@@ -1,12 +1,19 @@
+// backend/config/firebaseAdmin.js
+
 import admin from "firebase-admin";
-import fs from "fs";
 
-const serviceAccount = JSON.parse(
-  fs.readFileSync("/run/secrets/firebase-service.json", "utf8")
-);
+if (!process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+  throw new Error("❌ FIREBASE_SERVICE_ACCOUNT_JSON is not set");
+}
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+
+  console.log("✅ Firebase Admin initialized successfully");
+}
 
 export default admin;
