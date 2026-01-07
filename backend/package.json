@@ -5,6 +5,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
+    "install-clean": "npm install --legacy-peer-deps",
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
