@@ -195,7 +195,7 @@ const Footer = () => {
 
           <div className="text-center md:text-right">
             <p className="flex items-center justify-center md:justify-end gap-1">
-              Designed & Developed by{" "}
+              Website Developed & Maintained by{" "}
               <a
                 href="https://github.com/UjwalRamteke8"
                 target="_blank"

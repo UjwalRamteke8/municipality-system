@@ -14,7 +14,7 @@ import {
 const BACKEND_URL = process.env.VITE_API_BASE_URL;
 
 const uploadPhotoRequest = async (formData) => {
-  const res = await api.post(`/api/photos/upload`, formData, {
+  const res = await api.post(`/photos/upload`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return res.data;
