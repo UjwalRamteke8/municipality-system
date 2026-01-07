@@ -53,10 +53,12 @@ function StaffLogin() {
 
       const { data } = await api.post(
         "/api/auth/verify-staff",
+
         { department: formData.staff },
         {
           headers: {
             Authorization: `Bearer ${idToken}`,
+            withcredentials: true,
           },
         }
       );
