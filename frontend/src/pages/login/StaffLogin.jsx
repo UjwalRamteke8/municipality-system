@@ -52,7 +52,7 @@ function StaffLogin() {
       // Ensure the URL matches the backend route we just fixed
 
       const { data } = await api.post(
-        "/api/auth/verify-staff",
+        "/auth/verify-staff",
 
         { department: formData.staff },
         {

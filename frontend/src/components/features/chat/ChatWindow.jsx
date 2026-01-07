@@ -7,7 +7,7 @@ export default function ChatWindow() {
   const [messages, setMessages] = useState([
     {
       role: "bot",
-      content: "Namaskar! I'm your PMC Civic AI. How can I assist you today?",
+      content: "Namaskar! I'm your MC Civic AI. How can I assist you today?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -29,7 +29,7 @@ export default function ChatWindow() {
 
     try {
       // FIX: Changed 'prompt' to 'message' to match your backend controller/route
-      const { data } = await api.post("/api/ai/chat", {
+      const { data } = await api.post("/ai/chat", {
         message: input,
       });
 
