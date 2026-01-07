@@ -20,7 +20,12 @@ const BACKEND_URL = process.env.VITE_API_BASE_URL;
 const getImageUrl = (path) => {
   if (!path) return "";
   if (path.startsWith("http")) return path;
-  return `${BACKEND_URL}/${path.replace(/\\/g, "/")}`;
+
+  // Remove /api from the URL if it exists to get the root domain
+  const rootUrl = BACKEND_URL.replace("/api", "");
+  const cleanPath = path.replace(/\\/g, "/"); // Fix Windows backslashes
+
+  return `${rootUrl}/${cleanPath}`;
 };
 
 const getStatusStep = (status) => {

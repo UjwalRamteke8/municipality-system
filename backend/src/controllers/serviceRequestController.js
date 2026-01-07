@@ -8,8 +8,9 @@ import asyncHandler from "express-async-handler";
  */
 export const createServiceRequest = asyncHandler(async (req, res) => {
   const { serviceType, description, address, paymentRequired } = req.body;
-  const attachments = req.files ? req.files.map((f) => f.path) : [];
 
+  const isPaymentNeeded =
+    paymentRequired === "true" || paymentRequired === true;
   if (!serviceType || !description || !address)
     return res.status(400).json({ message: "Missing fields." });
 
@@ -17,9 +18,9 @@ export const createServiceRequest = asyncHandler(async (req, res) => {
     serviceType,
     description,
     address,
-    attachments,
-    paymentRequired: !!paymentRequired,
-    user: req.userId,
+    attachments: req.files ? req.files.map((f) => f.path) : [],
+    paymentRequired: isPaymentNeeded,
+    user: req.userId, // Provided by your updated authMiddleware
     status: "pending",
   });
 
