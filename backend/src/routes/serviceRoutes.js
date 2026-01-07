@@ -13,11 +13,7 @@ import upload from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
-// Middleware to allow Staff OR Admin
-// We assume authMiddleware sets req.user or req.role
 const staffOrAdminMiddleware = (req, res, next) => {
-  // Check if user is admin (set by authMiddleware usually) OR has staff role
-  // Adjust 'req.user.role' based on how your authMiddleware saves the user data
   const role = req.user?.role || req.role;
   const isAdmin = req.isAdmin || role === "admin";
 
@@ -32,7 +28,7 @@ const staffOrAdminMiddleware = (req, res, next) => {
 
 // 1. Create a Service Request
 router.post(
-  "/",
+  "/request",
   authMiddleware,
   upload.array("attachments", 5),
   createServiceRequest

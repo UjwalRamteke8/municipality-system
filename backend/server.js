@@ -20,10 +20,15 @@ const app = express();
 /* -------------------- CORS (GLOBAL, SINGLE) -------------------- */
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: process.env.CLIENT_URL, // Ensure this is https://municipality-system.vercel.app
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "withcredentials",
+      "x-requested-with",
+    ], // ADD 'withcredentials' here
   })
 );
 app.options("*", cors());
