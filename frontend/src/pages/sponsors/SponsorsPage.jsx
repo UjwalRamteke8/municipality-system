@@ -32,27 +32,22 @@ export default function Sponsors() {
     {
       name: "Jalgaon Municipal Corporation",
       url: "https://www.jcmc.gov.in/",
-      logo: "/images/Jalgaon Logo.png",
     },
     {
       name: "Pune Municipal Corporation",
       url: "https://www.pmc.gov.in/en",
-      logo: "/images/PMC logo.webp",
     },
     {
       name: "Chh. Sambhajinagar Municipal Corporation",
       url: "https://chhsambhajinagarmc.org/",
-      logo: "/images/CSMC logo.jpeg",
     },
     {
       name: "Nagpur Municipal Corporation",
       url: "https://nmcnagpur.gov.in",
-      logo: "/images/NMC logo.png", // Update with correct path if available
     },
     {
       name: "Nashik Municipal Corporation",
       url: "https://nmc.gov.in/",
-      logo: "/images/Nashik logo.png", // Update with correct path if available
     },
   ];
 
@@ -95,11 +90,7 @@ export default function Sponsors() {
                 {/* Hover Glow Effect */}
                 <div className="absolute inset-0 bg-gradient-to-br from-[#9f1239]/0 to-[#9f1239]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                <SponsorLogo
-                  src={sponsor.logo}
-                  alt={sponsor.name}
-                  name={sponsor.name}
-                />
+                <SponsorLogo alt={sponsor.name} name={sponsor.name} />
 
                 {/* Hover Action Text */}
                 <div className="absolute bottom-2 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 flex items-center gap-1 text-[10px] font-bold text-[#9f1239] uppercase tracking-wide">

@@ -106,7 +106,7 @@ export default function ServiceForm() {
         formData.append("attachments", f.file);
       });
 
-      const res = await api.post(`/services`, formData, {
+      const res = await api.post(`/api/services`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
