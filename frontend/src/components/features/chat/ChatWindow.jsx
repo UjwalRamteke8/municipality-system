@@ -28,8 +28,9 @@ export default function ChatWindow() {
     setIsTyping(true);
 
     try {
+      // FIX: Changed 'prompt' to 'message' to match your backend controller/route
       const { data } = await api.post("/api/ai/chat", {
-        prompt: input,
+        message: input,
       });
 
       setMessages((prev) => [...prev, { role: "bot", content: data.reply }]);
@@ -47,7 +48,6 @@ export default function ChatWindow() {
       setIsTyping(false);
     }
   };
-
   return (
     <div className="flex flex-col h-full bg-slate-50 font-sans">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
