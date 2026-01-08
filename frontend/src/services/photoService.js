@@ -4,7 +4,7 @@ import api from "./api"; // IMPORT your configured api.js instead of raw axios
 export const uploadPhoto = async (formData) => {
   // Use the 'api' instance we already configured with interceptors
   // This automatically handles the Firebase Token and the correct Base URL
-  const res = await api.post(`/api/photos/upload`, formData, {
+  const res = await api.post(`/photos/upload`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -14,6 +14,6 @@ export const uploadPhoto = async (formData) => {
 };
 
 export const fetchAllPhotos = async () => {
-  const res = await api.get(`/api/photos/all`);
+  const res = await api.get(`/photos/all`);
   return res.data;
 };
