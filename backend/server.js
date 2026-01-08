@@ -20,7 +20,7 @@ const app = express();
 /* -------------------- CORS (GLOBAL, SINGLE) -------------------- */
 app.use(
   cors({
-    origin: process.meta.env.CLIENT_URL, // Ensure this is https://municipality-system.vercel.app
+    origin: process.env.CLIENT_URL || "https://municipality-system.vercel.app",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
