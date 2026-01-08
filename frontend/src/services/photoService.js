@@ -1,37 +1,19 @@
-import axios from "axios";
-import { getAuth } from "firebase/auth";
+// frontend/services/photoService.js
+import api from "./api"; // IMPORT your configured api.js instead of raw axios
 
-// NOTE: Using 127.0.0.1 is sometimes safer than localhost on Windows to avoid IPv6 lookup issues
-const BACKEND_URL = import.meta.env.VITE_API_BASE_URL;
-
-/**
- * Upload a photo (FormData) to backend.
- * Gets fresh Firebase ID token for authentication.
- */
 export const uploadPhoto = async (formData) => {
-  const auth = getAuth();
-  const user = auth.currentUser;
-
-  if (!user) {
-    throw new Error("AUTH_REQUIRED: User not authenticated. Please login.");
-  }
-
-  // Get fresh ID token from Firebase
-  const token = await user.getIdToken(true);
-  const res = await axios.post(`${BACKEND_URL}/api/photos/upload`, formData, {
+  // Use the 'api' instance we already configured with interceptors
+  // This automatically handles the Firebase Token and the correct Base URL
+  const res = await api.post(`/api/photos/upload`, formData, {
     headers: {
-      Authorization: `Bearer ${token}`,
-      // NOTE: Do not set Content-Type here; let browser set multipart boundary
+      "Content-Type": "multipart/form-data",
     },
   });
 
-  return res.data; // controller returns { message, photo }
+  return res.data;
 };
 
-/**
- * Fetch all photos (public)
- */
 export const fetchAllPhotos = async () => {
-  const res = await axios.get(`${BACKEND_URL}/api/photos/all`);
-  return res.data; // should be array of photos
+  const res = await api.get(`/api/photos/all`);
+  return res.data;
 };

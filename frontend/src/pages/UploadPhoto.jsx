@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import api from "../services/api";
+import { uploadPhoto } from "../services/photoService";
 import {
   Upload,
   MapPin,
@@ -10,106 +10,99 @@ import {
   Loader2,
 } from "lucide-react";
 
-// In real app, switch to import.meta.env
-const BACKEND_URL = process.env.VITE_API_BASE_URL;
-
-const uploadPhotoRequest = async (formData) => {
-  const res = await api.post(`/photos/upload`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-  return res.data;
-};
-
-// Mock Metadata Card for internal use if import fails
 const MetadataPreview = ({ data }) => (
   <div className="bg-slate-50 rounded-lg p-4 border border-slate-200 text-sm space-y-2 mt-4">
     <h4 className="font-bold text-slate-700 border-b border-slate-200 pb-2 mb-2">
-      Metadata
+      Metadata Summary
     </h4>
     <div className="flex justify-between">
-      <span className="text-slate-500">Label:</span>{" "}
-      <span className="font-medium">{data.locationLabel}</span>
+      <span className="text-slate-500">Label:</span>
+      <span className="font-medium">{data.locationLabel || "Not set"}</span>
     </div>
     <div className="flex justify-between">
-      <span className="text-slate-500">Coords:</span>{" "}
+      <span className="text-slate-500">Coords:</span>
       <span className="font-mono text-xs">
-        {data.latitude}, {data.longitude}
+        {data.latitude || "0.0"}, {data.longitude || "0.0"}
       </span>
     </div>
     <div className="flex justify-between">
-      <span className="text-slate-500">Date:</span>{" "}
-      <span>{new Date(data.dateTime).toLocaleDateString()}</span>
+      <span className="text-slate-500">Date:</span>
+      <span>
+        {data.dateTime
+          ? new Date(data.dateTime).toLocaleDateString()
+          : "Current Time"}
+      </span>
     </div>
   </div>
 );
 
-const initialState = {
-  dateTime: "",
-  locationLabel: "",
-  latitude: "",
-  longitude: "",
-};
-
 export default function UploadPhoto() {
-  const [formState, setFormState] = useState(initialState);
+  const [formState, setFormState] = useState({
+    dateTime: new Date().toISOString().slice(0, 16), // Set default to now
+    locationLabel: "",
+    latitude: "",
+    longitude: "",
+  });
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState("");
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  // 1. Auth Check
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) navigate("/login");
+    if (!localStorage.getItem("token")) navigate("/login");
   }, [navigate]);
 
+  // 2. Auto-get GPS
   useEffect(() => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        setFormState((prev) => ({
-          ...prev,
-          latitude: coords.latitude.toFixed(6),
-          longitude: coords.longitude.toFixed(6),
-        }));
-      },
-      (err) => console.warn("Geo access denied", err)
-    );
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        ({ coords }) => {
+          setFormState((prev) => ({
+            ...prev,
+            latitude: coords.latitude.toFixed(6),
+            longitude: coords.longitude.toFixed(6),
+          }));
+        },
+        (err) => console.warn("Geolocation blocked", err)
+      );
+    }
   }, []);
 
+  // 3. Image Preview
   useEffect(() => {
     if (!file) return setPreview(null);
-    const reader = new FileReader();
-    reader.onloadend = () => setPreview(reader.result);
-    reader.readAsDataURL(file);
+    const objectUrl = URL.createObjectURL(file);
+    setPreview(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl); // Clean up memory
   }, [file]);
 
   const mutation = useMutation({
-    mutationFn: async () => {
-      const fd = new FormData();
-      fd.append("photo", file);
-      fd.append("dateTime", formState.dateTime);
-      fd.append("locationLabel", formState.locationLabel);
-      fd.append("latitude", formState.latitude);
-      fd.append("longitude", formState.longitude);
-      return uploadPhotoRequest(fd);
-    },
+    mutationFn: (formData) => uploadPhoto(formData), // Use the service function directly
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["photos"] });
       navigate("/gallery");
     },
+
     onError: (err) => {
-      setError(
-        err.response?.data?.message || "Upload failed. Please try again."
-      );
+      setError(err.response?.data?.message || "Upload failed. Try again.");
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!file) return setError("Please select an image.");
-    setError("");
-    mutation.mutate();
+
+    const fd = new FormData();
+    fd.append("photo", file);
+    fd.append("dateTime", formState.dateTime);
+    fd.append("locationLabel", formState.locationLabel);
+    fd.append("latitude", formState.latitude);
+    fd.append("longitude", formState.longitude);
+
+    mutation.mutate(fd);
   };
 
   return (
