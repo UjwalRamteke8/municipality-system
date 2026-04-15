@@ -67,7 +67,14 @@ function StaffLogin() {
       localStorage.setItem("user", JSON.stringify(data.user));
       navigate("/dashboard");
     } catch (err) {
-      // ... error handling
+      console.error("Login failed:", err);
+      // Turn off the loading spinner
+      setLoading(false); 
+      
+      // Show the error message from the backend to the user
+      setError(
+        err.response?.data?.message || "Failed to log in. Please check your credentials."
+      );
     }
   };
 
