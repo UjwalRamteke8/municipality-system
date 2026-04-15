@@ -358,3 +358,69 @@ Frontend-side (Vite):
 ---
 
 (End of updated installation & environment section)
+
+---
+
+## ⚡ Repository Quick Start (folder-specific)
+
+These commands reflect the actual scripts and configuration used in each folder. Run them from the repository root unless noted.
+
+- **Backend** (folder: `backend`)
+
+  - Install deps (use the helper if peer deps cause issues):
+    - `cd backend`
+    - `npm run install-clean` (or `npm install`)
+  - Dev server: `npm run dev` (uses `nodemon server.js`)
+  - Start (production): `npm start`
+  - Health check: `http://localhost:5000/health`
+  - Important files: `backend/server.js`, `backend/.env` (create), `backend/firebase-service.json` (if used)
+  - Example PowerShell to load Firebase JSON into env (temporary):
+
+    ```powershell
+    $env:FIREBASE_SERVICE_ACCOUNT_JSON = Get-Content .\backend\firebase-service.json -Raw
+    npm run dev
+    ```
+
+- **Frontend** (folder: `frontend`)
+
+  - Install deps: `cd frontend` then `npm install`
+  - Dev server: `npm run dev` (Vite — default dev port is `5173`)
+  - Build: `npm run build`
+  - Preview built site: `npm run preview`
+  - Note: earlier docs referenced port `3000`; with Vite the local dev port is `5173` by default.
+
+- **PhotoGallary** (folder: `PhotoGallary`)
+
+  - This is a Next.js project that uses `pnpm` (see `packageManager` in its `package.json`). Recommended commands:
+    - `cd PhotoGallary`
+    - `pnpm install`
+    - `pnpm dev` (development)
+    - `pnpm test` (runs Jest tests described in the repo)
+
+- **Automation** (folder: `automation`)
+
+  - Java + Maven-based Selenium automation and test suite.
+  - Run tests/builds with Maven:
+    - `cd automation`
+    - `mvn test` (runs TestNG suites via Surefire)
+    - `mvn -DskipTests package` (build without running tests)
+
+- **Docker Compose** (from repository root)
+  - `docker-compose up -d --build`
+  - The compose file configures `backend` on port `5000`, `frontend` on port `80`, and `mongo` on `27017`.
+  - Ensure `backend/.env` and `backend/firebase-service.json` are present if you rely on them in container mode (the compose mounts `./backend/firebase-service.json`).
+
+---
+
+## ⚠️ Notes, Corrections & Recommendations
+
+- The README earlier referenced a frontend URL of `http://localhost:3000`. With the current `frontend/package.json` (`vite --host`) the dev server default is `http://localhost:5173`.
+- Use a secrets manager or CI/CD secrets for `FIREBASE_SERVICE_ACCOUNT_JSON` and other API keys in production — do not commit service account JSON to source control.
+- If you experience peer-dependency errors on Windows/npm, use the included `backend` script `install-clean` which runs `npm install --legacy-peer-deps`.
+- Docker: confirm `backend/.env` values map to expected env var names (`MONGO_URI`, `PORT`, `CLIENT_URL`, etc.).
+
+---
+
+## ✅ What I changed
+
+- Added this "Repository Quick Start" section with per-folder commands and clarifying notes about ports, package managers, and Docker.

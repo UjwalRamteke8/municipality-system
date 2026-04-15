@@ -1,16 +1,35 @@
 import admin from "firebase-admin";
+import { readFile } from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
 
-if (!process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
-  throw new Error("FIREBASE_SERVICE_ACCOUNT_JSON is missing");
-}
+// Helper to get __dirname in ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+const initializeFirebase = async () => {
+  try {
+    const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-  console.log("✅ Firebase Admin initialized");
-}
+    if (!serviceAccountPath) {
+      throw new Error("FIREBASE_SERVICE_ACCOUNT_PATH is missing in .env");
+    }
+
+    // Resolve the absolute path
+    const resolvedPath = path.resolve(__dirname, "../../", serviceAccountPath);
+    const serviceAccount = JSON.parse(await readFile(resolvedPath, "utf8"));
+
+    if (!admin.apps.length) {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+      console.log("✅ Firebase Admin initialized successfully");
+    }
+  } catch (error) {
+    console.error("❌ Firebase initialization error:", error.message);
+  }
+};
+
+initializeFirebase();
 
 export default admin;

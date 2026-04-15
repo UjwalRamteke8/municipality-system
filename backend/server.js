@@ -4,13 +4,16 @@ import http from "http";
 import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+import admin from "./config/firebaseAdmin.js"; // Now this will work
 
 import connectDB from "./config/db.js";
-import "./config/firebaseAdmin.js";
 import apiRoutes from "./src/index.js";
 import errorHandler from "./src/middleware/errorHandler.js";
 import { initializeChat } from "./src/socket/chatSocket.js";
 import { startSensorSimulator } from "./src/iot/sensorSimulator.js";
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
