@@ -60,7 +60,7 @@ export const listServiceRequests = asyncHandler(async (req, res) => {
 export const getServiceRequest = asyncHandler(async (req, res) => {
   const item = await ServiceRequest.findById(req.params.id).populate(
     "user",
-    "name email"
+    "name email",
   );
   if (!item)
     return res.status(404).json({ message: "Service request not found." });
@@ -80,23 +80,43 @@ export const getServiceRequestsByUser = asyncHandler(async (req, res) => {
 /**
  * @route PATCH /api/services/:id/status
  */
+/**
+ * @route PATCH /api/services/:id/status
+ */
 export const updateServiceStatus = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { status, remark } = req.body;
+  try {
+    const { id } = req.params;
+    const { status, remark } = req.body;
 
-  const item = await ServiceRequest.findById(id);
-  if (!item)
-    return res.status(404).json({ message: "Service request not found." });
+    const item = await ServiceRequest.findById(id);
+    if (!item) {
+      return res.status(404).json({ message: "Service request not found." });
+    }
 
-  // Force lowercase to ensure consistency (matches enum if you have one)
-  if (status) {
-    item.status = status.toLowerCase();
+    // Fix the string formatting to match Mongoose Enums
+    if (status) {
+      let formattedStatus = status.toLowerCase();
+      // If frontend sends "In Progress", convert it to "in-progress"
+      if (formattedStatus === "in progress") {
+        formattedStatus = "in-progress";
+      }
+      item.status = formattedStatus;
+    }
+
+    if (remark) item.remark = remark;
+
+    // Let Mongoose handle the updatedAt automatically if timestamps are enabled
+    item.updatedAt = Date.now();
+
+    await item.save();
+
+    res.json({ success: true, item });
+  } catch (error) {
+    // This will print the EXACT reason for the crash in your Render logs
+    console.error("CRASH IN updateServiceStatus:", error.message);
+    res.status(500).json({
+      message: "Server failed to update status",
+      error: error.message,
+    });
   }
-
-  if (remark) item.remark = remark;
-  item.updatedAt = Date.now();
-
-  await item.save();
-
-  res.json({ item });
 });
