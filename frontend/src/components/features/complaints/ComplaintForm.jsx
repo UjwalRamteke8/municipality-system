@@ -30,21 +30,40 @@ export default function ComplaintForm({ onSubmit }) {
     setTimeout(() => setLocationStatus("success"), 1500);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.image || !form.title || !form.description) {
       setMsg("Please fill all fields and upload an image.");
       return;
     }
+
     setLoading(true);
-    // Simulating API submit
-    setTimeout(() => {
-      setLoading(false);
-      setMsg("Complaint Registered Successfully! Reference ID: PMC-2024-8892");
+
+    try {
+      // 1. We must use FormData to send the image file to the backend
+      const dataToSend = new FormData();
+      dataToSend.append("title", form.title);
+      dataToSend.append("category", form.category);
+      dataToSend.append("description", form.description);
+      dataToSend.append("image", form.image);
+
+      // Send a default location since auto-detect is simulated right now
+      dataToSend.append("location", "Location Captured");
+
+      // 2. Call the real API function passed from ComplaintsPage.jsx
+      await onSubmit(dataToSend);
+
+      // 3. If it succeeds, show success and clear the form
+      setMsg("Complaint Registered Successfully in Database!");
       setForm({ title: "", category: "", description: "", image: null });
       setPreview(null);
       setLocationStatus("idle");
-    }, 2000);
+    } catch (error) {
+      console.error(error);
+      setMsg("Failed to register complaint. Check console.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
