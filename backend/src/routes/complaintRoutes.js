@@ -8,6 +8,7 @@ import {
 
 import authMiddleware from "../middleware/authMiddleware.js";
 import upload from "../middleware/uploadMiddleware.js";
+import User from "../models/User.js"; // <--- ADD THIS LINE
 
 const router = express.Router();
 
@@ -52,6 +53,6 @@ router.patch(
       res.status(403).json({ message: "Access denied. Staff only." });
     }
   },
-  updateStatus
+  updateStatus,
 );
 export default router;
